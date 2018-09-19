@@ -1,10 +1,10 @@
 import soco
+
 from adapt.intent import IntentBuilder
-from mycroft import MycroftSkill, intent_handler
-from mycroft.audio import wait_while_speaking
+from mycroft.skills.core import MycroftSkill, intent_handler
+from mycroft.util.log import LOG
 
-
-class SonosTmp(MycroftSkill):
+class SonosTmpSkill(MycroftSkill):
     """
     Control Sonos speaker devices
     
@@ -12,21 +12,28 @@ class SonosTmp(MycroftSkill):
     """
     
     def __init__(self):
-        super(SonosTmp, self).__init__(name="SonosTmp")
+        super(SonosTmpSkill, self).__init__(name="SonosTmpSkill")
+        
+        # Initialize working variables used within the skill.
         self.zone_list = list(soco.discover())
+    
+        # Create log info
+        LOG.info("Sonos devices found: ")
+        LOG.info(self.zone_list)
 
-    # original: @intent_file_handler('tmp.sonos.intent')
-    @intent_handler(IntentBuilder("PlaySonos").require("Play").require("Sonos"))
+    @intent_handler_intent(IntentBuilder("PlaySonos").require("Play").require("Sonos"))
     def handle_play_sonos(self, message):
-        self.zone_list.play()
+        LOG.debug("Starting play sonos action.")
+        self.zone_list[0].play()
         self.speak_dialog('play.sonos')
 
         
     @intent_handler(IntentBuilder("PauseSonos").require("Pause").require("Sonos"))
     def handle_pause_sonos(self, message):
-        self.zone_list.pause()
+        LOG.debug("Starting pause sonos action.")
+        self.zone_list[0].pause()
         self.speak_dialog('pause.sonos')
 
 def create_skill():
-    return SonosTmp()
+    return SonosTmpSkill()
 
